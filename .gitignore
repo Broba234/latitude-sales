@@ -1,0 +1,7 @@
+public/config.js
+node_modules
+.DS_Store
+npm-debug.log*
+yarn-error.log*
+.env
+.env.*

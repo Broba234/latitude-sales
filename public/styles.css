@@ -1,0 +1,411 @@
+:root {
+  /* Light slate-white theme with tasteful brown accents */
+  --bg: #f7f7f5;           /* slate white */
+  --bg-elev: #ffffff;      /* elevated surfaces */
+  --text: #1a1a1a;         /* sleek near-black text */
+  --muted: #6b6b6b;        /* subdued text */
+  --accent: #b07b4e;       /* warm brown accent */
+  --accent-2: #8a6141;     /* deeper brown accent */
+  --border: rgba(0,0,0,0.08);
+  --border-strong: rgba(0,0,0,0.12);
+  --shadow: rgba(0,0,0,0.08);
+  --ui-scale: 0.8;         /* global visual scale */
+}
+
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+body {
+  margin: 0;
+  font-family: 'Plus Jakarta Sans', ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+  color: var(--text);
+  /* Use the hero image as the site-wide background */
+  background: var(--bg) url('/images/hero2.png') center 0 / cover no-repeat;
+  background-attachment: scroll;
+  will-change: background-position;
+  line-height: 1.6;
+  overflow-x: hidden;
+}
+
+/* Ensure page content sits above the fade layer */
+.site-scale { position: relative; z-index: 1; }
+
+/* White overlay that fades in on scroll, sitting above the image but below content */
+.bg-fader {
+  position: fixed;
+  inset: 0;
+  background: #ffffff;
+  opacity: 0; /* set via JS with scroll */
+  pointer-events: none;
+  z-index: 0;
+  transition: opacity 180ms linear;
+}
+
+/* Prefer browser zoom when available */
+html { zoom: var(--ui-scale); }
+@supports not (zoom: 1) {
+  /* Fallback: scale wrapper while maintaining visual width */
+  .site-scale {
+    width: calc(100% / var(--ui-scale));
+    transform: scale(var(--ui-scale));
+    transform-origin: top center;
+    margin: 0 auto;
+  }
+}
+
+.container {
+  width: min(1100px, 92%);
+  margin: 0 auto;
+}
+.narrow { width: min(800px, 92%); }
+
+.topbar {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 1000;
+  background: rgba(255,255,255,0.75);
+  border-bottom: 1px solid var(--border);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+.topbar-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 64px;
+  position: relative; /* allow centered header logo */
+}
+.brand { display: none; }
+.nav a {
+  color: var(--text);
+  text-decoration: none;
+  margin-left: 16px;
+  opacity: 0.95;
+  text-shadow: none;
+}
+.nav a:hover { opacity: 1; color: var(--text); text-decoration: underline; }
+
+/* Centered, larger title inside the top bar */
+.header-logo {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  font-family: 'Plus Jakarta Sans', ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+  font-weight: 400;
+  color: #000000;
+  letter-spacing: 0.08em;
+  font-size: clamp(20px, 4.2vw, 36px);
+  line-height: 1;
+  white-space: nowrap;
+  text-shadow:
+    0 0 6px rgba(255,255,255,0.95),
+    0 0 16px rgba(255,255,255,0.92),
+    0 0 32px rgba(255,255,255,0.9);
+}
+
+/* Solid header after leaving hero */
+/* Keep header style consistent regardless of scroll */
+.topbar.solid {
+  background: rgba(255,255,255,0.75);
+  border-bottom: 1px solid var(--border);
+  backdrop-filter: blur(8px);
+}
+.topbar.solid .brand { color: var(--text); text-shadow: none; }
+.topbar.solid .nav a { color: var(--text); text-shadow: none; }
+
+.section {
+  padding: 72px 0;
+}
+.section { scroll-margin-top: 72px; }
+.section-title {
+  margin: 0 0 24px 0;
+  font-size: 28px;
+  font-weight: 500;
+}
+/* Cool display font for the Brands heading */
+#brands .section-title {
+  font-family: 'Bebas Neue', 'Plus Jakarta Sans', ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+  font-weight: 400;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-size: clamp(28px, 6vw, 56px);
+  text-align: left; /* top-left placement */
+}
+
+/* Horizontal separator: starts just left of the title and runs right */
+#brands .section-title::before { content: none; }
+
+/* (removed sticky Brands header) */
+
+.hero {
+  height: 100vh;
+  display: grid;
+  place-items: center;
+  text-align: center;
+  position: relative;
+  background: transparent; /* background now comes from body */
+}
+.hero::before { display: none; }
+.hero-inner {
+  position: relative;
+  top: auto;
+  height: auto;
+  display: grid;
+  place-items: start center; /* start lower on the hero */
+  padding-top: 88vh; /* closer to bottom */
+  z-index: 1;
+}
+@media (max-width: 800px) {
+  .hero-inner { padding-top: 80vh; }
+}
+@media (max-width: 520px) {
+  .hero-inner { padding-top: 74vh; }
+}
+.bg-fixed { background-attachment: fixed; }
+.logo {
+  font-family: 'Plus Jakarta Sans', ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+  font-weight: 200;
+  color: #000000; /* black text */
+  font-size: clamp(46px, 9vw, 108px);
+  margin: 0 0 6px 0;
+  letter-spacing: 0.12em;
+  /* ultra-strong white glow for maximum contrast */
+  text-shadow:
+    0 0 8px rgba(255,255,255,1),
+    0 0 18px rgba(255,255,255,1),
+    0 0 36px rgba(255,255,255,0.98),
+    0 0 72px rgba(255,255,255,0.96),
+    0 0 144px rgba(255,255,255,0.93);
+  display: inline-block;
+  padding: 0;
+  box-shadow: none;
+}
+
+/* Fixed state for logo controlled via JS */
+/* (Removed sticky hero logo helpers; using static brand in top bar) */
+/* removed submark styles */
+.tagline { color: var(--muted); font-size: 18px; }
+
+/* no parallax: keep backgrounds static */
+
+.story { background: var(--bg-elev); border-block: 1px solid var(--border); }
+
+/* Hero statement card */
+.statement {
+  background: rgba(255,255,255,0.65);
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--accent);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  box-shadow: 0 12px 40px rgba(0,0,0,0.12);
+  color: var(--text);
+  padding: 18px 18px 18px 16px;
+  border-radius: 10px;
+  width: min(760px, 92%);
+  /* remove initial fade-in to avoid masking scroll fade-out */
+  will-change: opacity, transform;
+  transition: opacity 200ms ease-out, transform 220ms ease-out;
+}
+.statement .eyebrow {
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--accent-2);
+  opacity: 0.85;
+  margin-bottom: 6px;
+}
+.statement p {
+  margin: 0;
+  line-height: 1.5;
+  font-size: clamp(18px, 2.4vw, 22px);
+  font-weight: 500;
+  font-family: 'Playfair Display', Georgia, serif;
+}
+.statement .hl { color: inherit; font-weight: inherit; text-decoration: none; background: none; }
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 16px;
+}
+
+/* Brands grid: fixed two columns on larger screens */
+#brandsGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(220px, 1fr));
+  gap: 28px; /* more breathing room between brand tiles */
+}
+/* Separate Hero and Brands more */
+#brands { margin-top: clamp(120px, 12vh, 200px); }
+@media (max-width: 900px) {
+  #brandsGrid { grid-template-columns: repeat(2, minmax(220px, 1fr)); gap: 24px; }
+}
+@media (max-width: 640px) {
+  #brandsGrid { grid-template-columns: 1fr; gap: 18px; }
+}
+
+.card-tile {
+  position: relative;
+  overflow: hidden;
+  border-radius: 0;
+  background: #f0efe9;
+  border: 1px solid var(--border);
+  aspect-ratio: 2 / 3;
+}
+.card-tile img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform: scale(1);
+  transition: transform 240ms ease;
+}
+.card-tile .overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 14px;
+  background: rgba(0,0,0,0.35);
+  color: #ffffff;
+  opacity: 0.0;
+  transition: opacity 220ms ease;
+}
+.card-tile:hover img { transform: scale(1.05); }
+.card-tile:hover .overlay { opacity: 1; }
+.card-tile .brand-name {
+  font-weight: 600;
+  letter-spacing: 0.4px;
+  font-size: 18px;
+  width: 100%;
+  text-align: center;
+  text-shadow: 0 1px 6px rgba(0,0,0,0.35);
+}
+
+
+/* Placeholder tiles to fill up to 6 slots */
+.card-tile.placeholder {
+  display: block;
+  height: auto;
+  background: repeating-linear-gradient(45deg, rgba(0,0,0,0.04), rgba(0,0,0,0.04) 8px, transparent 8px, transparent 16px);
+  border: 1px dashed var(--border);
+  border-radius: 0;
+  opacity: 0.35;
+}
+.card-tile.placeholder:hover { opacity: 0.4; }
+
+.empty-state {
+  color: var(--muted);
+  text-align: center;
+  padding: 24px 0 8px;
+}
+
+.collections {
+  background-image: radial-gradient(800px 400px at 80% 20%, rgba(176,123,78,0.08), transparent 60%),
+    radial-gradient(800px 400px at 10% 80%, rgba(138,97,65,0.06), transparent 60%);
+}
+
+.contact { background: var(--bg-elev); }
+
+/* Contact section: reset layout for a clean, centered look */
+#contact { display: block; min-height: auto; }
+#contact .container,
+#contact .container.narrow { margin-left: auto; margin-right: auto; }
+
+/* Professional contact card */
+.contact-card {
+  background: var(--bg-elev);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 24px 20px;
+  box-shadow: 0 8px 24px var(--shadow);
+}
+@media (min-width: 720px) {
+  .contact-card { padding: 28px 24px; }
+}
+
+/* removed parallax divider styles */
+/* Section parallax: backgrounds move subtly via JS */
+.parallax {
+  background-size: cover;
+  background-position: center 0px;
+  background-repeat: no-repeat;
+  will-change: background-position;
+}
+
+.contact-list {
+  list-style: none;
+  padding: 0; margin: 0;
+}
+.contact-list li { margin: 8px 0; }
+.contact-list a { color: var(--accent-2); text-decoration: none; }
+.contact-list a:hover { text-decoration: underline; }
+
+.footer {
+  border-top: 1px solid var(--border);
+  padding: 24px 0;
+  color: var(--muted);
+}
+
+/* Admin */
+.admin .section { padding-top: 48px; }
+.form {
+  display: grid;
+  gap: 12px;
+}
+.form .row { display: grid; gap: 12px; grid-template-columns: 1fr 1fr; }
+@media (max-width: 720px) { .form .row { grid-template-columns: 1fr; } }
+label { display: grid; gap: 6px; font-size: 14px; }
+input[type="text"], input[type="url"], input[type="email"], input[type="password"], input[type="number"] {
+  padding: 10px 12px; border-radius: 8px; border: 1px solid var(--border-strong); background: #ffffff; color: var(--text);
+}
+input[type="file"] { color-scheme: light; }
+.checkbox { align-items: center; grid-template-columns: auto 1fr; gap: 10px; }
+
+.btn { padding: 10px 14px; border-radius: 10px; border: 1px solid var(--border-strong); background: #ffffff; color: var(--text); cursor: pointer; font-weight: 500; }
+.btn:hover { border-color: var(--accent); box-shadow: 0 4px 14px var(--shadow); }
+.btn.secondary { background: #f4f1ee; border-color: var(--border); }
+.btn.ghost { background: transparent; }
+
+.admin-bar { display: flex; align-items: center; gap: 16px; margin-bottom: 16px; }
+.spacer { flex: 1 1 auto; }
+
+.card { background: #ffffff; border: 1px solid var(--border); border-radius: 12px; padding: 16px; }
+
+.admin-list { margin-top: 16px; display: grid; gap: 12px; }
+.admin-item { display: grid; grid-template-columns: 96px 1fr auto; gap: 12px; align-items: center; background: #ffffff; border: 1px solid var(--border); border-radius: 12px; padding: 10px; }
+.admin-item img { width: 64px; height: 96px; object-fit: cover; border-radius: 0; }
+
+/* Admin image adjust UI */
+.image-adjust { margin-top: 12px; }
+.crop-viewport {
+  position: relative;
+  width: 100%;
+  max-width: 360px;
+  aspect-ratio: 2 / 3;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  background: #faf9f6;
+}
+.crop-viewport img {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  user-select: none;
+  pointer-events: none;
+}
+.adjust-controls { display: grid; gap: 8px; margin-top: 10px; max-width: 360px; }
+.adjust-controls label { font-size: 12px; color: var(--muted); }
+.adjust-controls input[type="range"] { width: 100%; }
+.admin-actions { display: flex; gap: 8px; }
+.error { color: #b00020; }
+
+/* Utility */
+.hidden { display: none !important; }

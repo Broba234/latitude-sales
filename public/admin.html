@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Admin — Latitude Sales</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@200;300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body class="admin">
+    <div class="site-scale">
+    <header class="topbar">
+      <div class="container topbar-inner">
+        <div class="brand">Latitude Sales — Admin</div>
+        <nav class="nav">
+          <a href="/">← Back to site</a>
+        </nav>
+      </div>
+    </header>
+
+    <main class="admin-main">
+      <section class="section">
+        <div class="container narrow">
+          <div id="authView">
+            <h2 class="section-title">Sign In</h2>
+            <form id="loginForm" class="form">
+              <label>Email <input type="email" id="email" required placeholder="you@example.com" /></label>
+              <label>Password <input type="password" id="password" required placeholder="••••••••" /></label>
+              <button type="submit" class="btn">Sign In</button>
+              <p class="hint">Use the admin credentials you created in Supabase Auth.</p>
+              <div id="authError" class="error" hidden></div>
+            </form>
+          </div>
+
+          <div id="appView" hidden>
+            <div class="admin-bar">
+              <h2 class="section-title">Brands Manager</h2>
+              <div class="spacer"></div>
+              <button id="logoutBtn" class="btn secondary">Logout</button>
+            </div>
+            <form id="collectionForm" class="form card">
+              <input type="hidden" id="collectionId" />
+              <div class="row">
+                <label>Brand Name <input type="text" id="brandName" required placeholder="Brand name" /></label>
+                <label>Link URL <input type="url" id="linkUrl" required placeholder="https://brand.com" /></label>
+              </div>
+              <div class="row">
+                <label>Image <input type="file" id="imageFile" accept="image/*" required /></label>
+                <label class="checkbox"><input type="checkbox" id="active" checked /> Active</label>
+              </div>
+              <div id="imageAdjust" class="image-adjust card" hidden>
+                <div class="crop-viewport">
+                  <img id="adjustPreview" alt="Preview" />
+                </div>
+                <div class="adjust-controls">
+                  <label>Zoom <input type="range" id="zoomRange" min="0.5" max="2.5" step="0.01" value="0.9" /></label>
+                  <label>Horizontal <input type="range" id="posXRange" min="-100" max="100" step="1" value="0" /></label>
+                  <label>Vertical <input type="range" id="posYRange" min="-100" max="100" step="1" value="0" /></label>
+                  <small style="color:var(--muted)">Tip: drag image to pan, scroll to zoom</small>
+                </div>
+              </div>
+              <div class="row">
+                <label>Sort Order <input type="number" id="sortOrder" placeholder="0" /></label>
+              </div>
+              <div class="row">
+                <button type="submit" class="btn">Save Brand</button>
+                <button id="resetForm" class="btn ghost" type="button">Reset</button>
+              </div>
+              <div id="formError" class="error" hidden></div>
+            </form>
+
+            <div id="collectionsAdminList" class="admin-list"></div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    </div>
+    <script type="module" src="/admin.js"></script>
+  </body>
+  </html>
