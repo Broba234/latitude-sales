@@ -1,0 +1,32 @@
+[
+  {
+    "name": "ARMEDANGELS",
+    "link_url": "https://www.armedangels.com/en-wo/",
+    "image_url": "/images/armedangels.jpeg"
+  },
+  {
+    "name": "Indi & Cold",
+    "link_url": "https://world.indiandcold.com/",
+    "image_url": "/images/indicold.jpeg"
+  },
+  {
+    "name": "Minus",
+    "link_url": "https://redefined-fashion.com/en/collections/minus",
+    "image_url": "/images/minus.jpeg"
+  },
+  {
+    "name": "White Stuff",
+    "link_url": "https://www.whitestuff.com/",
+    "image_url": "/images/whitestuff.jpeg"
+  },
+  {
+    "name": "YAYA",
+    "link_url": "https://yayaco.ca/",
+    "image_url": "/images/yaya.jpeg"
+  },
+  {
+    "name": "Yerse",
+    "link_url": "https://www.yerse.com/en?srsltid=AfmBOooWdg540psYy0-S5AE2Lll99OGX4XuId8JiaYZvMkjeHAN8up2L",
+    "image_url": "/images/yerse.jpeg"
+  }
+]

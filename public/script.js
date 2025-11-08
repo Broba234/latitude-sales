@@ -2,11 +2,7 @@
 // - Parallax backgrounds
 // - Fetch and render collections from Supabase
 
-// Load Supabase via ESM and local config
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
-import { SUPABASE_URL, SUPABASE_ANON_KEY, SUPABASE_STORAGE_BUCKET } from './config.js';
-
-const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+// Static mode: no backend. Brands are loaded from /brands.json
 
 // Lightweight parallax for sections (backgrounds only)
 const parallaxEls = Array.from(document.querySelectorAll('.parallax'));
@@ -104,28 +100,22 @@ if (yearEl) yearEl.textContent = String(new Date().getFullYear());
 
 // No sticky hero logo; brand is permanently in the header
 
-// Render collections grid
+// Render collections grid (static JSON)
 async function loadCollections() {
   const grid = document.getElementById('brandsGrid');
   const empty = document.getElementById('brandsEmpty');
   if (!grid) return;
 
   grid.innerHTML = '';
-  const { data, error } = await supabase
-    .from('collections')
-    .select('id,name,link_url,image_url,active,sort_order')
-    .eq('active', true)
-    .order('sort_order', { ascending: true })
-    .order('name', { ascending: true });
-
-  if (error) {
-    console.error('Failed to load brands:', error);
-    empty.hidden = false;
-    empty.textContent = 'Unable to load brands.';
-    return;
+  let data = [];
+  try {
+    const resp = await fetch('/brands.json', { cache: 'no-store' });
+    if (resp.ok) data = await resp.json();
+  } catch (e) {
+    console.warn('brands.json missing or invalid');
   }
 
-  if (!data || data.length === 0) {
+  if (!Array.isArray(data) || data.length === 0) {
     empty.hidden = false;
     return;
   }

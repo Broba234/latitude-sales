@@ -114,3 +114,24 @@ In Supabase Settings → Auth → URL Configuration, add `http://localhost:3000`
 - Real Supabase credentials should go only in `public/config.js` (not committed). `.gitignore` already excludes it.
 - You can rename the storage bucket; update `SUPABASE_STORAGE_BUCKET` in your config accordingly.
 
+## Static Brands (No Backend)
+
+If you want to remove the backend and keep a static site, the website can render brands from a simple JSON file.
+
+1) Put your brand images in `public/images/` (you may create `public/images/brands/`).
+
+2) Edit `public/brands.json` and list your brands like:
+
+```
+[
+  { "name": "Brand One", "link_url": "https://brand1.example", "image_url": "/images/brands/brand1.jpg" },
+  { "name": "Brand Two", "link_url": "#", "image_url": "/images/brands/brand2.jpg" }
+]
+```
+
+3) Start the local server: `node server.js`, then open `http://localhost:3000`.
+
+Notes:
+- `image_url` must be a path under `public/` (e.g. `/images/brands/...`).
+- If `brands.json` is empty or missing, the page shows the empty state.
+- The admin panel remains in the repo but won’t affect the public page when using static brands.
