@@ -134,4 +134,48 @@ If you want to remove the backend and keep a static site, the website can render
 Notes:
 - `image_url` must be a path under `public/` (e.g. `/images/brands/...`).
 - If `brands.json` is empty or missing, the page shows the empty state.
-- The admin panel remains in the repo but won’t affect the public page when using static brands.
+- The admin panel remains in the repo but won't affect the public page when using static brands.
+
+## Performance Optimizations
+
+The website has been optimized for fast loading and smooth performance:
+
+### Server Optimizations
+- **Gzip compression** for all text-based files (HTML, CSS, JS, JSON)
+- **Cache headers** for static assets (1 year for images, 1 week for CSS/JS)
+- **Optimized file serving** with proper MIME types
+
+### Image Optimizations
+- **Lazy loading** for brand images (images load as you scroll)
+- **Async decoding** for non-blocking image rendering
+- **Dimensions set** to prevent layout shift
+- **Error handling** with fallback images
+
+**⚠️ Important: Image File Sizes**
+The images in `public/images/` are currently very large (27MB total). For production, you should optimize them:
+- See `IMAGE_OPTIMIZATION.md` for detailed instructions
+- Run `node optimize-images.js` to automatically optimize images (requires `npm install sharp`)
+- Target: < 200KB per brand image, < 500KB for hero image
+
+### JavaScript Optimizations
+- **Throttled scroll handlers** for smooth parallax performance
+- **RequestAnimationFrame** for efficient updates
+- **Passive event listeners** for better scroll performance
+- **Browser caching** enabled for brands.json
+
+### CSS Optimizations
+- **Font smoothing** for better text rendering
+- **Minimal repaints** with optimized transitions
+- **Layout shift prevention** with aspect ratios and min-heights
+
+### HTML Optimizations
+- **Resource hints** (preconnect, dns-prefetch) for faster font loading
+- **Preload** critical resources (CSS, JS, hero image)
+- **Optimized font loading** with display=swap
+
+## Performance Monitoring
+
+Use these tools to monitor performance:
+- Chrome DevTools Network tab and Lighthouse
+- PageSpeed Insights: https://pagespeed.web.dev/
+- WebPageTest: https://www.webpagetest.org/

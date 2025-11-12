@@ -22,12 +22,15 @@ function getScrollY() {
 }
 
 let ticking = false;
+
 function updateParallax() {
   ticking = false;
   const scrollY = getScrollY();
+  
   // Parallax the hero background (body) to scroll less than content
   const heroSpeed = 0.35; // lower = slower movement
   document.body.style.backgroundPosition = `center ${-(scrollY * heroSpeed)}px`;
+  
   // Fade in white overlay as we leave the hero
   if (bgFader) {
     const hero = document.querySelector('.hero');
@@ -36,6 +39,7 @@ function updateParallax() {
     const progress = Math.min(1, Math.max(0, scrollY / (heroHeight * 0.4)));
     bgFader.style.opacity = String(0.92 * progress);
   }
+  
   // Fade out hero statement based on scroll progress through the hero
   if (statementEl && heroSection) {
     const rect = heroSection.getBoundingClientRect();
@@ -46,9 +50,15 @@ function updateParallax() {
     statementEl.style.opacity = String(opacity);
     statementEl.style.transform = `translateY(${t * 14}px)`;
   }
+  
+  // Only update parallax for visible elements (performance optimization)
   parallaxEls.forEach((el) => {
-    const speed = Number(el.dataset.speed || 0.25);
     const rect = el.getBoundingClientRect();
+    // Skip if element is far off-screen (saves computation)
+    if (rect.bottom < -200 || rect.top > window.innerHeight + 200) {
+      return;
+    }
+    const speed = Number(el.dataset.speed || 0.25);
     const offsetTop = window.scrollY + rect.top;
     const y = Math.round((scrollY - offsetTop) * speed);
     el.style.backgroundPosition = `center ${-y}px`;
@@ -62,9 +72,10 @@ function onScroll() {
   }
 }
 
+// Use passive listeners for better scroll performance
 window.addEventListener('scroll', onScroll, { passive: true });
-window.addEventListener('load', updateParallax);
-window.addEventListener('resize', updateParallax);
+window.addEventListener('load', updateParallax, { passive: true });
+window.addEventListener('resize', updateParallax, { passive: true });
 
 // Transparent header over hero; solid after hero
 const headerEl = document.querySelector('.topbar');
@@ -109,7 +120,8 @@ async function loadCollections() {
   grid.innerHTML = '';
   let data = [];
   try {
-    const resp = await fetch('/brands.json', { cache: 'no-store' });
+    // Use default cache strategy (browser cache) instead of no-store
+    const resp = await fetch('/brands.json');
     if (resp.ok) data = await resp.json();
   } catch (e) {
     console.warn('brands.json missing or invalid');
@@ -130,8 +142,17 @@ async function loadCollections() {
 
     const img = document.createElement('img');
     img.loading = 'lazy';
+    img.decoding = 'async'; // Decode images asynchronously
     img.alt = c.name || 'Collection image';
+    // Set dimensions to prevent layout shift (2:3 aspect ratio for card-tile)
+    img.width = 400;
+    img.height = 600;
+    img.style.aspectRatio = '2 / 3';
     img.src = c.image_url || placeholderImage();
+    // Add error handling for broken images
+    img.onerror = function() {
+      this.src = placeholderImage();
+    };
     a.appendChild(img);
 
     const overlay = document.createElement('div');
