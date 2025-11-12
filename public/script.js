@@ -139,11 +139,39 @@ function initImageObserver() {
             // Load the actual image
             img.src = dataSrc;
             img.removeAttribute('data-src');
-            // Remove blur effect once loaded
-            img.addEventListener('load', function() {
+            
+            // Function to mark image as loaded
+            const markImageLoaded = function() {
               img.classList.add('loaded');
               img.parentElement?.classList.remove('loading');
-            }, { once: true });
+            };
+            
+            // Check if image is already loaded (from browser cache)
+            // Use a small timeout to handle cases where the check happens before the browser updates img.complete
+            const checkLoaded = function() {
+              if (img.complete && img.naturalWidth > 0) {
+                // Image is already loaded from cache
+                markImageLoaded();
+                return true;
+              }
+              return false;
+            };
+            
+            // Check immediately
+            if (!checkLoaded()) {
+              // Check again after a tiny delay (for cached images that load instantly)
+              setTimeout(() => {
+                if (!img.classList.contains('loaded')) {
+                  if (!checkLoaded()) {
+                    // Wait for load event
+                    img.addEventListener('load', markImageLoaded, { once: true });
+                    // Also handle error case
+                    img.addEventListener('error', markImageLoaded, { once: true });
+                  }
+                }
+              }, 10);
+            }
+            
             imageObserver.unobserve(img);
           }
         }
@@ -198,6 +226,13 @@ async function loadCollections() {
     
     // Use data-src for lazy loading with intersection observer
     const imageUrl = c.image_url || placeholderImage();
+    
+    // Function to mark image as loaded
+    const markImageLoaded = function(imageElement) {
+      imageElement.classList.add('loaded');
+      imageElement.parentElement?.classList.remove('loading');
+    };
+    
     if (imageObserver && imageUrl !== placeholderImage()) {
       // Set a tiny blur placeholder first
       img.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="400" height="600"%3E%3Crect width="100%25" height="100%25" fill="%23f0efe9"/%3E%3C/svg%3E';
@@ -210,20 +245,23 @@ async function loadCollections() {
       img.loading = 'lazy';
       img.fetchPriority = 'low';
       img.src = imageUrl;
+      
+      // Check if image is already loaded (cached)
+      if (img.complete && img.naturalWidth > 0) {
+        markImageLoaded(img);
+      } else {
+        img.addEventListener('load', function() {
+          markImageLoaded(this);
+        }, { once: true });
+      }
     }
     
     img.decoding = 'async'; // Decode images asynchronously
     // Add error handling for broken images
     img.onerror = function() {
       this.src = placeholderImage();
-      this.classList.add('loaded');
-      this.parentElement?.classList.remove('loading');
+      markImageLoaded(this);
     };
-    // Remove loading class when image loads
-    img.addEventListener('load', function() {
-      this.classList.add('loaded');
-      this.parentElement?.classList.remove('loading');
-    }, { once: true });
     
     a.appendChild(img);
 
