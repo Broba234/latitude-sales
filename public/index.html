@@ -3,7 +3,7 @@
     <head>
       <meta charset="utf-8" />
       <meta name="viewport" content="width=device-width, initial-scale=1" />
-      <title>LATITUDE SALES</title>
+      <title>Latitude Sales</title>
       <meta name="description" content="Latitude Sales — multi-brand clothing sales agency" />
       
       <!-- Favicons -->
@@ -21,7 +21,10 @@
       <!-- Preload critical resources -->
       <link rel="preload" href="/styles.css" as="style" />
       <link rel="preload" href="/script.js" as="script" />
+      <!-- Hero image preload with lower priority to not block rendering -->
       <link rel="preload" href="/images/hero2.png" as="image" fetchpriority="high" />
+      <!-- Prefetch brands.json for faster loading -->
+      <link rel="prefetch" href="/brands.json" as="fetch" crossorigin />
       
       <!-- Fonts - display=swap is already in the URL for better performance -->
       <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@200;300;400;500;600&family=Bebas+Neue&display=swap" rel="stylesheet" />

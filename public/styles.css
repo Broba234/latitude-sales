@@ -21,7 +21,6 @@ body {
   /* Use the hero image as the site-wide background */
   /* Optimize background loading - use a lighter background first, then load hero */
   background: var(--bg);
-  background-image: url('/images/hero2.png');
   background-position: center 0;
   background-size: cover;
   background-repeat: no-repeat;
@@ -33,6 +32,11 @@ body {
   /* Reduce repaints and improve font rendering */
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  /* Progressive background loading */
+  background-image: none;
+}
+body.hero-loaded {
+  background-image: url('/images/hero2.png');
 }
 
 /* Ensure page content sits above the fade layer */
@@ -249,6 +253,9 @@ html { zoom: var(--ui-scale); }
   display: grid;
   grid-template-columns: repeat(3, minmax(220px, 1fr));
   gap: 28px; /* more breathing room between brand tiles */
+  /* Optimize rendering performance */
+  content-visibility: auto;
+  contain-intrinsic-size: auto 500px;
 }
 /* Separate Hero and Brands more */
 #brands { margin-top: clamp(120px, 12vh, 200px); }
@@ -269,19 +276,48 @@ html { zoom: var(--ui-scale); }
   /* Prevent layout shift */
   min-height: 300px;
 }
+.card-tile.loading {
+  /* Blur effect while loading */
+  background: #f0efe9;
+}
+.card-tile.loading::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, #f0efe9 0%, #e8e7e1 50%, #f0efe9 100%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  z-index: 1;
+}
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
 .card-tile img {
   display: block;
   width: 100%;
   height: 100%;
   object-fit: cover;
   transform: scale(1);
-  transition: transform 240ms ease;
+  transition: transform 240ms ease, opacity 300ms ease, filter 300ms ease;
   /* Prevent layout shift */
   aspect-ratio: 2 / 3;
   /* Optimize image rendering performance */
   image-rendering: auto;
   -webkit-backface-visibility: hidden;
   backface-visibility: hidden;
+  /* Smooth loading transition */
+  opacity: 0;
+  filter: blur(8px);
+}
+.card-tile img.loaded {
+  opacity: 1;
+  filter: blur(0);
+}
+.card-tile.loading img {
+  /* Keep blur while loading */
+  filter: blur(8px);
+  opacity: 0.6;
 }
 .card-tile .overlay {
   position: absolute;

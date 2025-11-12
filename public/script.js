@@ -72,6 +72,21 @@ function onScroll() {
   }
 }
 
+// Progressive hero background loading
+function loadHeroBackground() {
+  const heroImg = new Image();
+  heroImg.onload = function() {
+    document.body.classList.add('hero-loaded');
+  };
+  heroImg.src = '/images/hero2.png';
+}
+// Load hero background after page load
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', loadHeroBackground);
+} else {
+  loadHeroBackground();
+}
+
 // Use passive listeners for better scroll performance
 window.addEventListener('scroll', onScroll, { passive: true });
 window.addEventListener('load', updateParallax, { passive: true });
@@ -111,11 +126,45 @@ if (yearEl) yearEl.textContent = String(new Date().getFullYear());
 
 // No sticky hero logo; brand is permanently in the header
 
+// Intersection Observer for optimized lazy loading
+let imageObserver = null;
+function initImageObserver() {
+  if ('IntersectionObserver' in window) {
+    imageObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const img = entry.target;
+          const dataSrc = img.dataset.src;
+          if (dataSrc) {
+            // Load the actual image
+            img.src = dataSrc;
+            img.removeAttribute('data-src');
+            // Remove blur effect once loaded
+            img.addEventListener('load', function() {
+              img.classList.add('loaded');
+              img.parentElement?.classList.remove('loading');
+            }, { once: true });
+            imageObserver.unobserve(img);
+          }
+        }
+      });
+    }, {
+      rootMargin: '50px', // Start loading 50px before image enters viewport
+      threshold: 0.01
+    });
+  }
+}
+
 // Render collections grid (static JSON)
 async function loadCollections() {
   const grid = document.getElementById('brandsGrid');
   const empty = document.getElementById('brandsEmpty');
   if (!grid) return;
+
+  // Initialize image observer if not already done
+  if (!imageObserver) {
+    initImageObserver();
+  }
 
   grid.innerHTML = '';
   let data = [];
@@ -138,21 +187,44 @@ async function loadCollections() {
     a.href = c.link_url || '#';
     a.target = '_blank';
     a.rel = 'noopener';
-    a.className = 'card-tile';
+    a.className = 'card-tile loading'; // Add loading class for blur effect
 
     const img = document.createElement('img');
-    img.loading = 'lazy';
-    img.decoding = 'async'; // Decode images asynchronously
     img.alt = c.name || 'Collection image';
     // Set dimensions to prevent layout shift (2:3 aspect ratio for card-tile)
     img.width = 400;
     img.height = 600;
     img.style.aspectRatio = '2 / 3';
-    img.src = c.image_url || placeholderImage();
+    
+    // Use data-src for lazy loading with intersection observer
+    const imageUrl = c.image_url || placeholderImage();
+    if (imageObserver && imageUrl !== placeholderImage()) {
+      // Set a tiny blur placeholder first
+      img.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="400" height="600"%3E%3Crect width="100%25" height="100%25" fill="%23f0efe9"/%3E%3C/svg%3E';
+      img.dataset.src = imageUrl;
+      img.loading = 'lazy';
+      img.fetchPriority = 'low'; // Low priority for below-the-fold images
+      imageObserver.observe(img);
+    } else {
+      // Fallback: use native lazy loading
+      img.loading = 'lazy';
+      img.fetchPriority = 'low';
+      img.src = imageUrl;
+    }
+    
+    img.decoding = 'async'; // Decode images asynchronously
     // Add error handling for broken images
     img.onerror = function() {
       this.src = placeholderImage();
+      this.classList.add('loaded');
+      this.parentElement?.classList.remove('loading');
     };
+    // Remove loading class when image loads
+    img.addEventListener('load', function() {
+      this.classList.add('loaded');
+      this.parentElement?.classList.remove('loading');
+    }, { once: true });
+    
     a.appendChild(img);
 
     const overlay = document.createElement('div');
