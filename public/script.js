@@ -124,6 +124,43 @@ document.querySelectorAll('a[href^="#"]').forEach((a) => {
 const yearEl = document.getElementById('year');
 if (yearEl) yearEl.textContent = String(new Date().getFullYear());
 
+// Mobile menu toggle
+const mobileMenuToggle = document.querySelector('.mobile-menu-toggle');
+const nav = document.querySelector('.nav');
+if (mobileMenuToggle && nav) {
+  mobileMenuToggle.addEventListener('click', function() {
+    const isExpanded = mobileMenuToggle.getAttribute('aria-expanded') === 'true';
+    mobileMenuToggle.setAttribute('aria-expanded', String(!isExpanded));
+    nav.classList.toggle('mobile-open');
+    // Prevent body scroll when menu is open
+    if (!isExpanded) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+  });
+  
+  // Close menu when clicking on a nav link
+  nav.querySelectorAll('a').forEach(link => {
+    link.addEventListener('click', function() {
+      mobileMenuToggle.setAttribute('aria-expanded', 'false');
+      nav.classList.remove('mobile-open');
+      document.body.style.overflow = '';
+    });
+  });
+  
+  // Close menu when clicking outside
+  document.addEventListener('click', function(e) {
+    if (nav.classList.contains('mobile-open') && 
+        !nav.contains(e.target) && 
+        !mobileMenuToggle.contains(e.target)) {
+      mobileMenuToggle.setAttribute('aria-expanded', 'false');
+      nav.classList.remove('mobile-open');
+      document.body.style.overflow = '';
+    }
+  });
+}
+
 // No sticky hero logo; brand is permanently in the header
 
 // Render collections grid (static JSON)
