@@ -126,73 +126,11 @@ if (yearEl) yearEl.textContent = String(new Date().getFullYear());
 
 // No sticky hero logo; brand is permanently in the header
 
-// Intersection Observer for optimized lazy loading
-let imageObserver = null;
-function initImageObserver() {
-  if ('IntersectionObserver' in window) {
-    imageObserver = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          const img = entry.target;
-          const dataSrc = img.dataset.src;
-          if (dataSrc) {
-            // Load the actual image
-            img.src = dataSrc;
-            img.removeAttribute('data-src');
-            
-            // Function to mark image as loaded
-            const markImageLoaded = function() {
-              img.classList.add('loaded');
-              img.parentElement?.classList.remove('loading');
-            };
-            
-            // Check if image is already loaded (from browser cache)
-            // Use a small timeout to handle cases where the check happens before the browser updates img.complete
-            const checkLoaded = function() {
-              if (img.complete && img.naturalWidth > 0) {
-                // Image is already loaded from cache
-                markImageLoaded();
-                return true;
-              }
-              return false;
-            };
-            
-            // Check immediately
-            if (!checkLoaded()) {
-              // Check again after a tiny delay (for cached images that load instantly)
-              setTimeout(() => {
-                if (!img.classList.contains('loaded')) {
-                  if (!checkLoaded()) {
-                    // Wait for load event
-                    img.addEventListener('load', markImageLoaded, { once: true });
-                    // Also handle error case
-                    img.addEventListener('error', markImageLoaded, { once: true });
-                  }
-                }
-              }, 10);
-            }
-            
-            imageObserver.unobserve(img);
-          }
-        }
-      });
-    }, {
-      rootMargin: '50px', // Start loading 50px before image enters viewport
-      threshold: 0.01
-    });
-  }
-}
-
 // Render collections grid (static JSON)
 async function loadCollections() {
   const grid = document.getElementById('brandsGrid');
   const empty = document.getElementById('brandsEmpty');
   if (!grid) return;
-
-  // Initialize image observer if not already done
-  if (!imageObserver) {
-    initImageObserver();
-  }
 
   grid.innerHTML = '';
   let data = [];
@@ -215,7 +153,7 @@ async function loadCollections() {
     a.href = c.link_url || '#';
     a.target = '_blank';
     a.rel = 'noopener';
-    a.className = 'card-tile loading'; // Add loading class for blur effect
+    a.className = 'card-tile';
 
     const img = document.createElement('img');
     img.alt = c.name || 'Collection image';
@@ -224,44 +162,46 @@ async function loadCollections() {
     img.height = 600;
     img.style.aspectRatio = '2 / 3';
     
-    // Use data-src for lazy loading with intersection observer
     const imageUrl = c.image_url || placeholderImage();
     
-    // Function to mark image as loaded
-    const markImageLoaded = function(imageElement) {
-      imageElement.classList.add('loaded');
-      imageElement.parentElement?.classList.remove('loading');
-    };
+    // Use native lazy loading - more reliable across browsers
+    img.loading = 'lazy';
+    img.decoding = 'async';
+    img.fetchPriority = 'low';
+    img.src = imageUrl;
     
-    if (imageObserver && imageUrl !== placeholderImage()) {
-      // Set a tiny blur placeholder first
-      img.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="400" height="600"%3E%3Crect width="100%25" height="100%25" fill="%23f0efe9"/%3E%3C/svg%3E';
-      img.dataset.src = imageUrl;
-      img.loading = 'lazy';
-      img.fetchPriority = 'low'; // Low priority for below-the-fold images
-      imageObserver.observe(img);
-    } else {
-      // Fallback: use native lazy loading
-      img.loading = 'lazy';
-      img.fetchPriority = 'low';
-      img.src = imageUrl;
-      
-      // Check if image is already loaded (cached)
-      if (img.complete && img.naturalWidth > 0) {
-        markImageLoaded(img);
-      } else {
-        img.addEventListener('load', function() {
-          markImageLoaded(this);
-        }, { once: true });
+    // Mark as loaded immediately if already cached, otherwise wait for load
+    const markImageLoaded = function() {
+      if (!img.classList.contains('loaded')) {
+        img.classList.add('loaded');
+        a.classList.remove('loading');
       }
-    }
-    
-    img.decoding = 'async'; // Decode images asynchronously
-    // Add error handling for broken images
-    img.onerror = function() {
-      this.src = placeholderImage();
-      markImageLoaded(this);
     };
+    
+    // Check if image is already loaded (from cache) - check multiple times for reliability
+    const checkAndMarkLoaded = function() {
+      if (img.complete && img.naturalWidth > 0) {
+        markImageLoaded();
+        return true;
+      }
+      return false;
+    };
+    
+    // Immediate check
+    if (!checkAndMarkLoaded()) {
+      // Check again after a tiny delay (handles cached images that load instantly)
+      setTimeout(() => {
+        if (!checkAndMarkLoaded()) {
+          // Wait for load event
+          img.addEventListener('load', markImageLoaded, { once: true });
+          // Also handle error case
+          img.addEventListener('error', function() {
+            this.src = placeholderImage();
+            markImageLoaded();
+          }, { once: true });
+        }
+      }, 0);
+    }
     
     a.appendChild(img);
 
