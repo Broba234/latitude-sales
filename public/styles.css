@@ -423,7 +423,7 @@ html { zoom: var(--ui-scale); }
 }
 /* Bring Brands closer to the mobile hero */
 @media (max-width: 768px) {
-  #brands { margin-top: 32px; }
+  #brands { margin-top: 8px; }
 }
 
 .card-tile {
