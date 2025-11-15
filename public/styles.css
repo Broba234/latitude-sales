@@ -421,6 +421,10 @@ html { zoom: var(--ui-scale); }
   #brands { margin-top: 80px; }
   #brandsGrid { grid-template-columns: 1fr; gap: 20px; }
 }
+/* Bring Brands closer to the mobile hero */
+@media (max-width: 768px) {
+  #brands { margin-top: 32px; }
+}
 
 .card-tile {
   position: relative;
@@ -657,8 +661,14 @@ input[type="file"] { color-scheme: light; }
 @media (max-width: 768px) {
   .mobile-hero {
     display: grid;
-    place-items: center;
-    min-height: calc(100vh - 64px);
+    /* Title should sit near the top below header */
+    justify-items: center;
+    align-content: start;
+    padding-top: 16px;
+    /* Push content below the fixed header */
+    margin-top: calc(64px + env(safe-area-inset-top, 0px));
+    /* Fill the remaining viewport below the header */
+    min-height: calc(100vh - 64px - env(safe-area-inset-top, 0px));
     text-align: center;
     background: transparent;
   }
