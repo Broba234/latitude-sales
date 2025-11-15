@@ -224,10 +224,13 @@ html { zoom: var(--ui-scale); }
 }
 @media (max-width: 640px) {
   .header-logo {
-    left: 50%;
-    transform: translate(-50%, -50%);
-    font-size: 18px;
+    display: none; /* hide header logo on small screens */
   }
+}
+
+/* Also hide header logo on tablets */
+@media (max-width: 768px) {
+  .header-logo { display: none; }
 }
 
 /* Solid header after leaving hero */
@@ -648,3 +651,24 @@ input[type="file"] { color-scheme: light; }
 
 /* Utility */
 .hidden { display: none !important; }
+
+/* Mobile-only hero title replacing image */
+.mobile-hero { display: none; }
+@media (max-width: 768px) {
+  .mobile-hero {
+    display: grid;
+    place-items: center;
+    min-height: calc(100vh - 64px);
+    text-align: center;
+    background: transparent;
+  }
+  .mobile-hero .logo {
+    font-size: clamp(56px, 18vw, 96px);
+    letter-spacing: 0.12em;
+    text-shadow:
+      0 0 8px rgba(255,255,255,1),
+      0 0 18px rgba(255,255,255,1),
+      0 0 36px rgba(255,255,255,0.98),
+      0 0 72px rgba(255,255,255,0.96);
+  }
+}
