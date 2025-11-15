@@ -36,7 +36,7 @@ body {
   background-image: none;
 }
 body.hero-loaded {
-  background-image: url('/images/hero2.png');
+  background-image: none;
 }
 
 /* Ensure page content sits above the fade layer */
@@ -136,6 +136,9 @@ html { zoom: var(--ui-scale); }
 @media (max-width: 768px) {
   .mobile-menu-toggle {
     display: flex;
+    position: absolute;
+    left: 20px;
+    z-index: 1002;
   }
   .nav {
     position: fixed;
@@ -221,8 +224,8 @@ html { zoom: var(--ui-scale); }
 }
 @media (max-width: 640px) {
   .header-logo {
-    left: 20px;
-    transform: translateY(-50%);
+    left: 50%;
+    transform: translate(-50%, -50%);
     font-size: 18px;
   }
 }
@@ -282,9 +285,9 @@ html { zoom: var(--ui-scale); }
   position: relative;
   background: transparent; /* background now comes from body */
 }
-@media (max-width: 640px) {
+@media (max-width: 768px) {
   .hero {
-    min-height: 500px;
+    display: none;
   }
 }
 .hero::before { display: none; }
@@ -412,7 +415,7 @@ html { zoom: var(--ui-scale); }
   #brandsGrid { grid-template-columns: repeat(2, minmax(220px, 1fr)); gap: 24px; }
 }
 @media (max-width: 640px) {
-  #brands { margin-top: clamp(80px, 10vh, 120px); }
+  #brands { margin-top: 80px; }
   #brandsGrid { grid-template-columns: 1fr; gap: 20px; }
 }
 

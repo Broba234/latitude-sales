@@ -74,6 +74,10 @@ function onScroll() {
 
 // Progressive hero background loading
 function loadHeroBackground() {
+  // Skip loading hero image on mobile devices (saves bandwidth)
+  if (window.innerWidth <= 768) {
+    return;
+  }
   const heroImg = new Image();
   heroImg.onload = function() {
     document.body.classList.add('hero-loaded');
