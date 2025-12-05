@@ -25,42 +25,9 @@ let ticking = false;
 function updateParallax() { ticking = false; }
 function onScroll() { /* disabled */ }
 
-// Progressive hero background loading
-function loadHeroBackground() {
-  // Skip loading hero image on mobile devices (saves bandwidth)
-  if (window.innerWidth <= 768) {
-    return;
-  }
-  const heroImg = new Image();
-  heroImg.onload = function() {
-    document.body.classList.add('hero-loaded');
-  };
-  heroImg.src = '/images/hero2.png';
-}
-// Load hero background after page load
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', loadHeroBackground);
-} else {
-  loadHeroBackground();
-}
-
 // Removed scroll-driven parallax listeners to avoid jank
 
-// Transparent header over hero; solid after hero
-const headerEl = document.querySelector('.topbar');
-const heroEl = document.querySelector('.hero');
-function updateHeaderSolid() {
-  if (!headerEl || !heroEl) return;
-  const threshold = heroEl.offsetHeight - 80; // near end of hero
-  if ((window.scrollY || window.pageYOffset) > threshold) {
-    headerEl.classList.add('solid');
-  } else {
-    headerEl.classList.remove('solid');
-  }
-}
-window.addEventListener('scroll', updateHeaderSolid, { passive: true });
-window.addEventListener('load', updateHeaderSolid);
-window.addEventListener('resize', updateHeaderSolid);
+// Header stays static; no scroll listener needed
 
 // Smooth scroll for in-page anchors
 document.querySelectorAll('a[href^="#"]').forEach((a) => {
@@ -117,6 +84,28 @@ if (mobileMenuToggle && nav) {
 
 // No sticky hero logo; brand is permanently in the header
 
+// Preload all brand images up-front so they never flicker
+async function preloadBrandImages() {
+  try {
+    const resp = await fetch('/brands.json', { cache: 'force-cache' });
+    if (!resp.ok) return;
+    const brands = await resp.json();
+    if (!Array.isArray(brands)) return;
+    for (const c of brands) {
+      if (!c || !c.image_url) continue;
+      const l = document.createElement('link');
+      l.rel = 'preload';
+      l.as = 'image';
+      l.href = c.image_url;
+      document.head.appendChild(l);
+    }
+  } catch (e) {
+    // ignore
+  }
+}
+
+preloadBrandImages();
+
 // Render collections grid (static JSON)
 async function loadCollections() {
   const grid = document.getElementById('brandsGrid');
@@ -158,6 +147,7 @@ async function loadCollections() {
     // Load images eagerly to prevent unload/reload flicker
     img.loading = 'eager';
     img.decoding = 'async';
+    try { img.fetchPriority = 'high'; } catch {}
     img.src = imageUrl;
     
     // Mark as loaded immediately if already cached, otherwise wait for load
