@@ -4,12 +4,11 @@
 
 // Static mode: no backend. Brands are loaded from /brands.json
 
-// Lightweight parallax for sections (backgrounds only)
-const parallaxEls = Array.from(document.querySelectorAll('.parallax'));
-// Background fade overlay element
-const bgFader = document.querySelector('.bg-fader');
-const statementEl = document.querySelector('.statement');
-const heroSection = document.querySelector('.hero');
+// Perf: disable parallax/scroll-driven background work to keep scrolling smooth
+const parallaxEls = [];
+const bgFader = null;
+const statementEl = null;
+const heroSection = null;
 
 function getScrollY() {
   return (
@@ -21,56 +20,10 @@ function getScrollY() {
   );
 }
 
+// No-op functions retained for backward compatibility
 let ticking = false;
-
-function updateParallax() {
-  ticking = false;
-  const scrollY = getScrollY();
-  
-  // Parallax the hero background (body) to scroll less than content
-  const heroSpeed = 0.35; // lower = slower movement
-  document.body.style.backgroundPosition = `center ${-(scrollY * heroSpeed)}px`;
-  
-  // Fade in white overlay as we leave the hero
-  if (bgFader) {
-    const hero = document.querySelector('.hero');
-    const heroHeight = hero ? hero.offsetHeight : 1;
-    // Fade faster: complete most of the fade by ~40% of hero height
-    const progress = Math.min(1, Math.max(0, scrollY / (heroHeight * 0.4)));
-    bgFader.style.opacity = String(0.92 * progress);
-  }
-  
-  // Fade out hero statement based on scroll progress through the hero
-  if (statementEl && heroSection) {
-    const rect = heroSection.getBoundingClientRect();
-    const vh = window.innerHeight || document.documentElement.clientHeight || 1;
-    // Progress of hero scrolling past the top (0 -> 1 over ~80% of viewport)
-    const t = Math.min(1, Math.max(0, (-rect.top) / (vh * 0.8)));
-    const opacity = 1 - t;
-    statementEl.style.opacity = String(opacity);
-    statementEl.style.transform = `translateY(${t * 14}px)`;
-  }
-  
-  // Only update parallax for visible elements (performance optimization)
-  parallaxEls.forEach((el) => {
-    const rect = el.getBoundingClientRect();
-    // Skip if element is far off-screen (saves computation)
-    if (rect.bottom < -200 || rect.top > window.innerHeight + 200) {
-      return;
-    }
-    const speed = Number(el.dataset.speed || 0.25);
-    const offsetTop = window.scrollY + rect.top;
-    const y = Math.round((scrollY - offsetTop) * speed);
-    el.style.backgroundPosition = `center ${-y}px`;
-  });
-}
-
-function onScroll() {
-  if (!ticking) {
-    window.requestAnimationFrame(updateParallax);
-    ticking = true;
-  }
-}
+function updateParallax() { ticking = false; }
+function onScroll() { /* disabled */ }
 
 // Progressive hero background loading
 function loadHeroBackground() {
@@ -91,10 +44,7 @@ if (document.readyState === 'loading') {
   loadHeroBackground();
 }
 
-// Use passive listeners for better scroll performance
-window.addEventListener('scroll', onScroll, { passive: true });
-window.addEventListener('load', updateParallax, { passive: true });
-window.addEventListener('resize', updateParallax, { passive: true });
+// Removed scroll-driven parallax listeners to avoid jank
 
 // Transparent header over hero; solid after hero
 const headerEl = document.querySelector('.topbar');
@@ -205,10 +155,9 @@ async function loadCollections() {
     
     const imageUrl = c.image_url || placeholderImage();
     
-    // Use native lazy loading - more reliable across browsers
-    img.loading = 'lazy';
+    // Load images eagerly to prevent unload/reload flicker
+    img.loading = 'eager';
     img.decoding = 'async';
-    img.fetchPriority = 'low';
     img.src = imageUrl;
     
     // Mark as loaded immediately if already cached, otherwise wait for load
