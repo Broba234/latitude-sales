@@ -222,16 +222,7 @@ html { zoom: var(--ui-scale); }
     0 0 16px rgba(255,255,255,0.92),
     0 0 32px rgba(255,255,255,0.9);
 }
-@media (max-width: 640px) {
-  .header-logo {
-    display: none; /* hide header logo on small screens */
-  }
-}
-
-/* Also hide header logo on tablets */
-@media (max-width: 768px) {
-  .header-logo { display: none; }
-}
+/* Keep header logo visible on all screen sizes */
 
 /* Solid header after leaving hero */
 /* Keep header style consistent regardless of scroll */
@@ -421,9 +412,9 @@ html { zoom: var(--ui-scale); }
   #brands { margin-top: 80px; }
   #brandsGrid { grid-template-columns: 1fr; gap: 20px; }
 }
-/* Bring Brands closer to the mobile hero */
+/* Ensure brands section clears fixed header on tablets/phones */
 @media (max-width: 768px) {
-  #brands { margin-top: 8px; }
+  #brands { margin-top: 80px; }
 }
 
 .card-tile {
